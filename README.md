@@ -101,6 +101,7 @@ List of environment variables for more customization:
 | CADVISOR_PORT                        | 8080                                                                                                              |                                                                                                                                                                                              |
 | ENABLE_DATA_API                      | true                                                                                                              | Use this env to export the `/data` API that returns the swarm status as a JSON object. Note that it requires basic-auth if `ENABLE_AUTHENTICATION` is activated.                             |
 | ENABLE_NETWORKS                      | false                                                                                                             | `true` by default, set to `false` to remove the network section from the dashboard.                                                                                                          |
+| DOCKER_SOCKET                        | tcp://localhost:2375                                                                                              | `/var/run/docker.sock` by default. You can use it with [docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy).                                                              |
 
 ## Security
 
@@ -108,27 +109,15 @@ List of environment variables for more customization:
 
 + Using the `ENABLE_AUTHENTICATION` environment variable, there is an option to use `Basic Auth`. The WebSocket server will close the connection if it does not receive a valid authentication token. See the example in the above section for more info.
 
-+ Using the `ENABLE_HTTPS` environment variable, there is an option to use `HTTPS` and `WSS`. We have Let’s Encrypt integration with the DNS challenge. See the example in the above section for more info.
++ Using the `ENABLE_HTTPS` environment variable, there is an option to use `HTTPS` and `WSS`. We have Let’s Encrypt integration with the DNS challenge. See the example for more info.
 
-
-## Production use
-
-There are two considerations for any serious deployment of the dashboard:
-
-1. Security - the dashboard node.js server has access to the docker daemon unix socket
-   and runs on the manager, which makes it a significant attack surface (i.e. compromising
-   the dashboard's node server would give an attacker full control of the swarm)
-2. The interaction with docker API is a fairly rough implementation and
-   is not very optimized. The server polls the API every 1000 ms, publishing the
-   response data to all open WebSockets if it changed since last time. There
-   is probably a better way to look for changes in the Swarm that could be used
-   in the future.
-
++ You can use [docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy) with the `DOCKER_SOCKET` environment variable to minimize permissions and enhance security.
 
 ## Rough roadmap
 
 * Show more service details (published port, image name, and version)
 * Node / Service / Task details panel
+* Improving performance by sending only the changes to online clients
 
 Both feature requests and pull requests are welcome. If you want to build/test the code locally, see [commands.md](./test-cluster/commands.md) in the `test-cluster` directory.
 

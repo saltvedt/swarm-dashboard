@@ -30,6 +30,7 @@ const showTaskTimestamp = !(process.env.SHOW_TASK_TIMESTAMP === "false");
 const enableNetworks = !(process.env.ENABLE_NETWORKS === "false");
 const debugMode = process.env.DEBUG_MODE === "true";
 const enableDataAPI = process.env.ENABLE_DATA_API === "true";
+const dockerSocket = process.env.DOCKER_SOCKET || "/var/run/docker.sock";
 
 const _nodeExporterServiceNameRegex = process.env.NODE_EXPORTER_SERVICE_NAME_REGEX || "";
 const useNodeExporter = _nodeExporterServiceNameRegex !== "";
@@ -65,12 +66,21 @@ function formatBytes(bytes, decimals = 0) {
 }
 
 // Docker API integration
-
 const dockerRequestBaseOptions = {
   method: 'GET',
-  socketPath: '/var/run/docker.sock',
 };
-
+if (dockerSocket.startsWith("tcp://")) {
+  const regex = /^tcp:\/\/([^:]+):(\d+)$/;
+  const match = dockerSocket.match(regex);
+  if (match) {
+    dockerRequestBaseOptions.host = match[1];
+    dockerRequestBaseOptions.port = parseInt(match[2]);
+  } else {
+      console.log("error is parsing DOCKER_SOCKET");
+  }
+} else {
+    dockerRequestBaseOptions.socketPath = dockerSocket;
+}
 const dockerAPIRequest = path => {
   return new Promise((res, rej) => {
     let buffer = '';
