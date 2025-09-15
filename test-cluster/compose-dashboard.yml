@@ -28,6 +28,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "127.0.0.1:2375:2375"
+    # Only granting GET access for /nodes, /networks, /services, and /tasks.
     environment:
       NODES: 1
       NETWORKS: 1
