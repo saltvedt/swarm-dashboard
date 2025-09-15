@@ -8,19 +8,21 @@ ENV NODE_ENV production
 COPY package.json yarn.lock ./
 RUN yarn install --production
 
-FROM --platform=linux/amd64 node:10.16.0-buster-slim AS elm-build
-RUN npm install --unsafe-perm -g elm@latest-0.18.0 --silent
-RUN apt-get -qq update && apt-get install -y netbase && rm -rf /var/lib/apt/lists/*
-WORKDIR /home/node/app/elm-client
-COPY ./elm-client/elm-package.json .
-RUN elm package install -y
-COPY ./elm-client/ /home/node/app/elm-client/
-RUN elm make Main.elm --output=client/index.js
+# FROM --platform=linux/amd64 node:10.16.0-buster-slim AS elm-build
+# RUN npm install --unsafe-perm -g elm@latest-0.18.0 --silent
+# RUN apt-get -qq update && apt-get install -y netbase && rm -rf /var/lib/apt/lists/*
+# WORKDIR /home/node/app/elm-client
+# COPY ./elm-client/elm-package.json .
+# RUN elm package install -y
+# COPY ./elm-client/ /home/node/app/elm-client/
+# RUN elm make Main.elm --output=client/index.js
+FROM --platform=linux/amd64 mohsenasm/swarm-dashboard:v2.6 AS elm-copy
 
 FROM base AS release
 ENV LEGO_PATH=/lego-files
 COPY --from=dependencies /home/node/app/node_modules node_modules
-COPY --from=elm-build /home/node/app/elm-client/client/ client
+# COPY --from=elm-build /home/node/app/elm-client/client/ client
+COPY --from=elm-copy /home/node/app/client client
 COPY package.json package.json
 COPY server server
 COPY server.sh server.sh
