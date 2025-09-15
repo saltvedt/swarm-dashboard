@@ -13,6 +13,26 @@ services:
       ENABLE_HTTPS: "false"
       NODE_EXPORTER_SERVICE_NAME_REGEX: "node-exporter"
       CADVISOR_SERVICE_NAME_REGEX: "cadvisor"
+      # DOCKER_SOCKET: "/var/run/docker.sock"
+      DOCKER_SOCKET: "tcp://dockerproxy:2375"
+    networks:
+      - monitoring_net
+  
+  # using dockerproxy is optional
+  # see https://github.com/Tecnativa/docker-socket-proxy#usage
+  dockerproxy:
+    image: tecnativa/docker-socket-proxy
+    container_name: dockerproxy
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "127.0.0.1:2375:2375"
+    environment:
+      NODES: 1
+      NETWORKS: 1
+      SERVICES: 1
+      TASKS: 1
     networks:
       - monitoring_net
 

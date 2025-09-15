@@ -101,7 +101,7 @@ List of environment variables for more customization:
 | CADVISOR_PORT                        | 8080                                                                                                              |                                                                                                                                                                                              |
 | ENABLE_DATA_API                      | true                                                                                                              | Use this env to export the `/data` API that returns the swarm status as a JSON object. Note that it requires basic-auth if `ENABLE_AUTHENTICATION` is activated.                             |
 | ENABLE_NETWORKS                      | false                                                                                                             | `true` by default, set to `false` to remove the network section from the dashboard.                                                                                                          |
-| DOCKER_SOCKET                        | tcp://localhost:2375                                                                                              | `/var/run/docker.sock` by default. You can use it with [docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy).                                                              |
+| DOCKER_SOCKET                        | tcp://dockerproxy:2375                                                                                            | `/var/run/docker.sock` by default. You can use it with [docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy).                                                              |
 
 ## Security
 
@@ -111,7 +111,7 @@ List of environment variables for more customization:
 
 + Using the `ENABLE_HTTPS` environment variable, there is an option to use `HTTPS` and `WSS`. We have Let’s Encrypt integration with the DNS challenge. See the example for more info.
 
-+ You can use [docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy) with the `DOCKER_SOCKET` environment variable to minimize permissions and enhance security.
++ You can use [docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy) with the `DOCKER_SOCKET` environment variable to minimize permissions and enhance security. Make sure that `swarm-dashboard` and `docker-socket-proxy` are in the same network. See the example configuration in [test-cluster/compose-dashboard.yml](./test-cluster/compose-dashboard.yml) for more detail.
 
 ## Rough roadmap
 
