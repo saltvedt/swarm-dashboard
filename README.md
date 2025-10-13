@@ -107,7 +107,7 @@ List of environment variables for more customization:
 
 ## Security
 
-+ We redact docker event data before sending them to the client. The previous version was sending the whole docker event data, including environment variables (someone might have stored some passwords in them, by mistake!). So, please consider using the newer version.
++ We redact Docker event data before sending it to the client. The previous version sent the complete Docker event data, including environment variables (which might unintentionally contain passwords). Therefore, please consider using version v2.x or later.
 
 + Using the `ENABLE_AUTHENTICATION` environment variable, there is an option to use `Basic Auth`. The WebSocket server will close the connection if it does not receive a valid authentication token. See the example in the above section for more info.
 
