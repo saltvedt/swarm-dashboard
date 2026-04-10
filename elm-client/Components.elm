@@ -16,6 +16,32 @@ statusString state desiredState =
         state ++ " → " ++ desiredState
 
 
+imageTag : String -> String
+imageTag image =
+    let
+        withoutDigest =
+            image
+                |> String.split "@"
+                |> List.head
+                |> Maybe.withDefault image
+
+        lastSegment =
+            withoutDigest
+                |> String.split "/"
+                |> List.reverse
+                |> List.head
+                |> Maybe.withDefault withoutDigest
+    in
+        if String.contains ":" lastSegment then
+            lastSegment
+                |> String.split ":"
+                |> List.reverse
+                |> List.head
+                |> Maybe.withDefault lastSegment
+        else
+            lastSegment
+
+
 task : Service -> AssignedTask -> Html msg
 task service { status, desiredState, containerSpec, slot, info } =
     let
@@ -72,6 +98,8 @@ task service { status, desiredState, containerSpec, slot, info } =
                         , br [] []
                         , text (statusString status.state desiredState) ]
                         , timestateInfo
+                        , [ br [] []
+                          , small [ class "image-tag" ] [ text (imageTag containerSpec.image) ] ]
                     ])
                 ])
             ])
@@ -98,7 +126,13 @@ serviceNode service taskAllocations node =
 serviceRow : List Node -> TaskIndex -> Networks.Connections -> Service -> Html msg
 serviceRow nodes taskAllocations networkConnections service =
     tr []
-        (th [] [ text service.name ] :: (Networks.connections service networkConnections) :: (List.map (serviceNode service taskAllocations) nodes))
+        (th []
+            [ text service.name
+            , br [] []
+            , small [ class "image-tag" ] [ text (imageTag service.containerSpec.image) ]
+            ]
+            :: (Networks.connections service networkConnections)
+            :: (List.map (serviceNode service taskAllocations) nodes))
 
 
 node : Node -> Html msg
