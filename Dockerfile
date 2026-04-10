@@ -8,7 +8,9 @@ ENV NODE_ENV production
 COPY package.json yarn.lock ./
 RUN yarn install --production
 
-FROM --platform=linux/amd64 node:10.16.0-buster-slim AS elm-build
+# Build the legacy Elm 0.18 frontend on the native builder architecture so
+# local ARM test-cluster VMs do not require x86 emulation.
+FROM node:10.16.0-buster-slim AS elm-build
 RUN npm install --unsafe-perm -g elm@latest-0.18.0 --silent
 RUN sed -i 's|deb.debian.org/debian|archive.debian.org/debian|g; s|security.debian.org/debian-security|archive.debian.org/debian-security|g' /etc/apt/sources.list \
     && printf 'Acquire::Check-Valid-Until "false";\n' > /etc/apt/apt.conf.d/99archive \

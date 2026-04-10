@@ -1,0 +1,22 @@
+FROM node:20-alpine AS base
+RUN apk add --no-cache --update tini lego curl
+ENTRYPOINT ["/sbin/tini", "--"]
+WORKDIR /home/node/app
+
+FROM base AS dependencies
+ENV NODE_ENV production
+COPY package.json yarn.lock ./
+RUN yarn install --production
+
+FROM base AS release
+ENV LEGO_PATH=/lego-files
+COPY --from=dependencies /home/node/app/node_modules node_modules
+COPY elm-client/client/ client
+COPY package.json package.json
+COPY server server
+COPY server.sh server.sh
+COPY healthcheck.sh healthcheck.sh
+COPY crontab /var/spool/cron/crontabs/root
+
+ENV PORT=8080
+CMD ["sh", "server.sh"]
